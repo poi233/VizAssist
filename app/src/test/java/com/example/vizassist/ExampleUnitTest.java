@@ -26,5 +26,8 @@ public class ExampleUnitTest {
 
     @Test
     public void viewsAreVisible() {
+        MainActivity activity = Robolectric.setupActivity(MainActivity.class);
+        assertEquals(activity.findViewById(R.id.resultView).getVisibility(), View.VISIBLE);
+        assertEquals(activity.findViewById(R.id.capturedImage).getVisibility(), View.VISIBLE);
     }
 }

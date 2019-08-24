@@ -29,6 +29,10 @@ import static org.junit.Assert.*;
 @RunWith(AndroidJUnit4.class)
 public class ExampleInstrumentedTest {
 
+    @Rule
+    public ActivityTestRule<MainActivity> activityActivityTestRule =
+            new ActivityTestRule<>(MainActivity.class);
+
     @Test
     public void useAppContext() {
         // Context of the app under test.
@@ -38,5 +42,16 @@ public class ExampleInstrumentedTest {
 
     @Test
     public void viewsAreVisible() {
+        onView(withId(R.id.capturedImage)).check(matches(isDisplayed()));
+        onView(withId(R.id.resultView)).check(matches(isDisplayed()));
+        onView(withId(R.id.resultView)).check(matches(withText(R.string.result_placeholder)));
+        onView(withId(R.id.capturedImage)).check(new ViewAssertion() {
+            @Override
+            public void check(View view, NoMatchingViewException noViewFoundException) {
+                assertNotEquals(view.getHeight(), 0);
+                assertNotEquals(view.getWidth(), 0);
+            }
+        });
+
     }
 }
