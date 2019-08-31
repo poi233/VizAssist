@@ -2,6 +2,10 @@ package com.example.vizassist.utilities;
 
 import android.graphics.Bitmap;
 
+import androidx.constraintlayout.solver.widgets.ConstraintAnchor;
+
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.ContentType;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -29,7 +33,23 @@ public class HttpUtilities {
      */
     public static HttpURLConnection makeHttpPostConnectionToUploadImage(Bitmap bitmap,
                                                                         String urlString) throws IOException {
-        return null;
+        URL url = new URL(urlString);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Connection", "Keep-Alive");
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 90, bos);
+        byte[] data = bos.toByteArray();
+        ByteArrayEntity byteArrayEntity = new ByteArrayEntity(data, ContentType.IMAGE_JPEG);
+
+        conn.addRequestProperty("Content-length", byteArrayEntity.getContentLength() + "");
+        conn.addRequestProperty(byteArrayEntity.getContentType().getName(), byteArrayEntity.getContentType().getValue());
+
+        OutputStream os = conn.getOutputStream();
+        byteArrayEntity.writeTo(os);
+        os.close();
+        return conn;
     }
 
     /**
@@ -43,10 +63,21 @@ public class HttpUtilities {
      */
     public static String parseOCRResponse(HttpURLConnection httpURLConnection) throws JSONException,
             IOException {
-        return null;
+        JSONObject resultObject = new JSONObject(readStream(httpURLConnection.getInputStream()));
+        String result = resultObject.getString("text");
+        return result;
     }
 
     private static String readStream(InputStream in) {
-        return null;
+        StringBuilder builder = new StringBuilder();
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return builder.toString();
     }
 }
